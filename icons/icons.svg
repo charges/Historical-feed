@@ -1,15 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-  <!-- background -->
-  <rect x="0" y="0" width="1024" height="1024" rx="220" fill="#ffffff"/>
-
-  <!-- book -->
-  <g fill="none" stroke="#2563eb" stroke-width="44" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M240 300h260c70 0 120 50 120 120v380c-30-35-75-55-125-55H240z"/>
-    <path d="M784 300H524c-70 0-120 50-120 120v380c30-35 75-55 125-55H784z"/>
-    <path d="M512 320v520"/>
-  </g>
-
-  <!-- spark/bolt -->
-  <path d="M610 220l-70 120h75l-55 110 150-160h-80l55-70z"
-        fill="#2563eb"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <path d="M1024,220L1024,804C1024,925.421 925.421,1024 804,1024L220,1024C98.579,1024 0,925.421 0,804L0,220C0,98.579 98.579,0 220,0L804,0C925.421,0 1024,98.579 1024,220Z" style="fill:white;"/>
+    <g transform="matrix(12.339815,0,0,12.253342,-8094.970889,-6208.730218)">
+        <text x="703.537px" y="557.537px" style="font-family:'LucidaGrande-Bold', 'Lucida Grande', sans-serif;font-weight:600;font-size:23.231px;fill:rgb(13,40,242);stroke:rgb(13,40,242);stroke-width:0.08px;">Ω</text>
+    </g>
+    <g transform="matrix(32.141515,0,0,24.856523,-10291.436168,-12696.694432)">
+        <g transform="matrix(17.579343,0,0,17.579343,333.965815,535.605442)">
+        </g>
+        <text x="326.163px" y="535.605px" style="font-family:'CorsivaHebrew', 'Corsiva Hebrew';font-style:italic;font-size:17.579px;fill:rgb(13,40,242);stroke:rgb(13,40,242);stroke-width:0.03px;">א</text>
+    </g>
+    <g transform="matrix(1,0,0,1,-4,-7.5)">
+        <path d="M134,294L394,294C464,294 514,344 514,414L514,794C484,759 439,739 389,739L134,739L134,294ZM898,295L638,295C568,295 518,345 518,415L518,795C548,760 593,740 643,740L898,740L898,295Z" style="fill:none;fill-rule:nonzero;stroke:rgb(13,40,242);stroke-width:44px;stroke-linecap:round;stroke-miterlimit:4;"/>
+    </g>
 </svg>
