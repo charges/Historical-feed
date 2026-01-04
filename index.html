@@ -112,6 +112,8 @@ const TOPICS = [
       const [error, setError] = useState(null);
       const [isCached, setIsCached] = useState(false);
       const [selectedTopic, setSelectedTopic] = useState('all');
+      const [sonnet, setSonnet] = useState(null);
+      const [sonnetError, setSonnetError] = useState(null);
 
       // --- Updated fetcher supports topic + force ---
       const fetchArticles = async (topic = 'all', force = false) => {
@@ -131,6 +133,15 @@ const TOPICS = [
           setAllArticles(data.articles);
           setIsCached(data.cached);
           applyFilters(data.articles, category, sourceFilter);
+        try {
+          const s = await fetchRandomSonnet();
+          setSonnet(s);
+          setSonnetError(null);
+        } catch (e) {
+          console.error('Sonnet fetch error:', e);
+          setSonnet(null);
+          setSonnetError('Unable to load sonnet.');
+        }
         } catch (err) {
           console.error('Fetch error:', err);
           setError('Unable to load articles. Please check that your backend server is running.');
