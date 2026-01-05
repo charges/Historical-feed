@@ -37,25 +37,25 @@
     const SONNET_URL = 'https://historical-feed-backend.onrender.com/api/sonnet';
 
     const fetchRandomSonnet = async () => {
-    const resp = await fetch(SONNET_URL);
+      const resp = await fetch(SONNET_URL);
       if (!resp.ok) throw new Error('Failed to fetch sonnet');
       return await resp.json(); // expects { number, title?, text, url, source }
     };
 
-// --- Topic list (expand freely) ---
-const TOPICS = [
-  { key: 'all', label: 'All Topics' },
-  { key: 'american-literature', label: 'American Literature' },
-  { key: 'italian-renaissance', label: 'Renaissance Italy' },
+    // --- Topic list (expand freely) ---
+    const TOPICS = [
+      { key: 'all', label: 'All Topics' },
+      { key: 'american-literature', label: 'American Literature' },
+      { key: 'italian-renaissance', label: 'Renaissance Italy' },
 
-  // NEW TOPICS
-  { key: 'italian-history', label: 'Italian History' },
-  { key: 'us-history', label: 'US History' },
-  { key: 'modern-german-literature', label: 'Modern German Literature' },
-  { key: 'modern-austrian-literature', label: 'Modern Austrian Literature' },
-  { key: 'modern-swiss-literature', label: 'Modern Swiss Literature' },
-  { key: 'italian-literature', label: 'Italian Literature' }
-];
+      // NEW TOPICS
+      { key: 'italian-history', label: 'Italian History' },
+      { key: 'us-history', label: 'US History' },
+      { key: 'modern-german-literature', label: 'Modern German Literature' },
+      { key: 'modern-austrian-literature', label: 'Modern Austrian Literature' },
+      { key: 'modern-swiss-literature', label: 'Modern Swiss Literature' },
+      { key: 'italian-literature', label: 'Italian Literature' }
+    ];
 
     // --- Icons ---
     const RefreshCw = ({ size = 24, className = "" }) => (
@@ -112,13 +112,22 @@ const TOPICS = [
       const [error, setError] = useState(null);
       const [isCached, setIsCached] = useState(false);
       const [selectedTopic, setSelectedTopic] = useState('all');
+
       const [sonnet, setSonnet] = useState(null);
       const [sonnetError, setSonnetError] = useState(null);
+
+      const applyFilters = (articles, cat, src) => {
+        let filtered = articles;
+        if (src !== 'all') filtered = filtered.filter(a => a.source === src);
+        if (cat !== 'all') filtered = filtered.filter(a => a.category === cat);
+        setDisplayedArticles(filtered);
+      };
 
       // --- Updated fetcher supports topic + force ---
       const fetchArticles = async (topic = 'all', force = false) => {
         setLoading(true);
         setError(null);
+
         try {
           let url = API_URL;
           const params = new URLSearchParams();
@@ -133,15 +142,16 @@ const TOPICS = [
           setAllArticles(data.articles);
           setIsCached(data.cached);
           applyFilters(data.articles, category, sourceFilter);
-        try {
-          const s = await fetchRandomSonnet();
-          setSonnet(s);
-          setSonnetError(null);
-        } catch (e) {
-          console.error('Sonnet fetch error:', e);
-          setSonnet(null);
-          setSonnetError('Unable to load sonnet.');
-        }
+
+          try {
+            const s = await fetchRandomSonnet();
+            setSonnet(s);
+            setSonnetError(null);
+          } catch (e) {
+            console.error('Sonnet fetch error:', e);
+            setSonnet(null);
+            setSonnetError('Unable to load sonnet.');
+          }
         } catch (err) {
           console.error('Fetch error:', err);
           setError('Unable to load articles. Please check that your backend server is running.');
@@ -153,13 +163,6 @@ const TOPICS = [
       useEffect(() => {
         fetchArticles('all', false);
       }, []);
-
-      const applyFilters = (articles, cat, src) => {
-        let filtered = articles;
-        if (src !== 'all') filtered = filtered.filter(a => a.source === src);
-        if (cat !== 'all') filtered = filtered.filter(a => a.category === cat);
-        setDisplayedArticles(filtered);
-      };
 
       const handleCategoryChange = (cat) => {
         setCategory(cat);
@@ -180,214 +183,167 @@ const TOPICS = [
 
       const isSaved = (articleId) => savedArticles.some(a => a.id === articleId);
 
-const ArticleCard = ({ article }) => {
-  const [imageError, setImageError] = useState(false);
-  const showImage = article.thumbnail && !imageError;
+      const ArticleCard = ({ article }) => {
+        const [imageError, setImageError] = useState(false);
+        const showImage = article.thumbnail && !imageError;
 
-  return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6 hover:shadow-lg transition-shadow">
-      {/* Only render the image block if we actually have an image */}
-      {showImage && (
-        <div className="relative h-48 bg-gradient-to-br from-blue-100 to-indigo-100">
-          <img
-            src={article.thumbnail}
-            alt={article.title}
-            className="w-full h-full object-cover"
-            onError={() => setImageError(true)}
-          />
-        </div>
-      )}
+        return (
+          <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6 hover:shadow-lg transition-shadow">
+            {showImage && (
+              <div className="relative h-48 bg-gradient-to-br from-blue-100 to-indigo-100">
+                <img
+                  src={article.thumbnail}
+                  alt={article.title}
+                  className="w-full h-full object-cover"
+                  onError={() => setImageError(true)}
+                />
+              </div>
+            )}
 
-      <div className="p-6">
-        {/* Top row: source (left) + bookmark (right) */}
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-semibold text-gray-500">
-            {article.source}
-          </span>
-          <button
-            onClick={() => toggleSave(article)}
-            className={`p-1 rounded hover:bg-gray-100 transition-colors ${
-              isSaved(article.id) ? 'text-blue-600' : 'text-gray-400'
-            }`}
-          >
-            <Bookmark
-              size={18}
-              fill={isSaved(article.id) ? 'currentColor' : 'none'}
-            />
-          </button>
-        </div>
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-gray-500">
+                  {article.source}
+                </span>
+                <button
+                  onClick={() => toggleSave(article)}
+                  className={`p-1 rounded hover:bg-gray-100 transition-colors ${
+                    isSaved(article.id) ? 'text-blue-600' : 'text-gray-400'
+                  }`}
+                >
+                  <Bookmark
+                    size={18}
+                    fill={isSaved(article.id) ? 'currentColor' : 'none'}
+                  />
+                </button>
+              </div>
 
-        {/* Title */}
-        <h2 className="text-2xl font-bold text-gray-900 mb-3">
-          {article.title}
-        </h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                {article.title}
+              </h2>
 
-        {/* Extract / summary */}
-        <p className="text-gray-700 mb-4 leading-relaxed">
-          {article.extract}
-        </p>
+              <p className="text-gray-700 mb-4 leading-relaxed">
+                {article.extract}
+              </p>
 
-        {/* Link */}
-        <a
-          href={article.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium"
-        >
-          Read full article <ExternalLink size={16} />
-        </a>
-      </div>
-    </div>
-  );
-};
+              <a
+                href={article.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium"
+              >
+                Read full article <ExternalLink size={16} />
+              </a>
+            </div>
+          </div>
+        );
+      };
 
-  const SonnetCard = ({ sonnet }) => {
-  if (!sonnet) return null;
+      const SonnetCard = ({ sonnet }) => {
+        if (!sonnet) return null;
 
-  return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6 hover:shadow-lg transition-shadow">
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-semibold text-gray-500">
-            Shakespeare (MIT)
-          </span>
-          <a
-            href={sonnet.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-blue-600 hover:text-blue-800 inline-flex items-center gap-1"
-          >
-            Source <ExternalLink size={14} />
-          </a>
-        </div>
+        return (
+          <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6 hover:shadow-lg transition-shadow">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-gray-500">
+                  Shakespeare (MIT)
+                </span>
+                <a
+                  href={sonnet.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-blue-600 hover:text-blue-800 inline-flex items-center gap-1"
+                >
+                  Source <ExternalLink size={14} />
+                </a>
+              </div>
 
-        <h2 className="text-2xl font-bold text-gray-900 mb-3">
-          {sonnet.title ? sonnet.title : `Sonnet ${sonnet.number}`}
-        </h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                {sonnet.title ? sonnet.title : `Sonnet ${sonnet.number}`}
+              </h2>
 
-        <pre className="whitespace-pre-wrap text-gray-800 leading-relaxed mb-4 font-serif">
-          {sonnet.text}
-        </pre>
-      </div>
-    </div>
-  );
-};
+              <pre className="whitespace-pre-wrap text-gray-800 leading-relaxed mb-0 font-serif">
+                {sonnet.text}
+              </pre>
+            </div>
+          </div>
+        );
+      };
+
+      // Split feed: Wikipedia first, then Sonnet, then everyone else
+      const wiki = displayedArticles.filter(a => a.source === 'Wikipedia');
+      const others = displayedArticles.filter(a => a.source !== 'Wikipedia');
+
       return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-<header className="bg-white shadow-sm sticky top-0 z-10">
-  <div className="max-w-4xl mx-auto px-4 py-2">
+          <header className="bg-white shadow-sm sticky top-0 z-10">
+            <div className="max-w-4xl mx-auto px-4 py-2">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <BookOpen size={22} className="text-blue-600 shrink-0" />
+                  {isCached && (
+                    <span className="inline-flex items-center h-7 px-2 text-xs bg-green-100 text-green-700 rounded">
+                      Cached
+                    </span>
+                  )}
+                </div>
 
-    {/* TOP ROW */}
-    <div className="flex items-center justify-between gap-3">
-      {/* Left: book + cached */}
-      <div className="flex items-center gap-2">
-        <BookOpen size={22} className="text-blue-600 shrink-0" />
-        {isCached && (
-          <span className="inline-flex items-center h-7 px-2 text-xs bg-green-100 text-green-700 rounded">
-            Cached
-          </span>
-        )}
-      </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setActiveView(activeView === 'feed' ? 'saved' : 'feed')}
+                    className="inline-flex items-center justify-center gap-1.5 h-8 px-3 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <Bookmark size={18} />
+                    <span>({savedArticles.length})</span>
+                  </button>
 
-      {/* Right: Saved + Refresh */}
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() =>
-            setActiveView(activeView === 'feed' ? 'saved' : 'feed')
-          }
-          className="inline-flex items-center justify-center gap-1.5 h-8 px-3 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-        >
-          <Bookmark size={18} />
-          <span>({savedArticles.length})</span>
-        </button>
+                  <button
+                    onClick={() => fetchArticles(selectedTopic, true)}
+                    disabled={loading}
+                    className="inline-flex items-center justify-center gap-1.5 h-8 px-3 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  >
+                    <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+                    <span>Refresh</span>
+                  </button>
+                </div>
+              </div>
 
-        <button
-          onClick={() => fetchArticles(selectedTopic, true)}
-          disabled={loading}
-          className="inline-flex items-center justify-center gap-1.5 h-8 px-3 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-        >
-          <RefreshCw
-            size={18}
-            className={loading ? 'animate-spin' : ''}
-          />
-          <span>Refresh</span>
-        </button>
-      </div>
-    </div>
+              <div className="mt-2">
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Harge-O-Matic 1.0
+                </h1>
+              </div>
+            </div>
+          </header>
 
-    {/* SECOND ROW: TITLE */}
-    <div className="mt-2">
-      <h1 className="text-2xl font-bold text-gray-900">
-        Harge-O-Matic 1.0
-      </h1>
-    </div>
-  </div>
-</header>
-          
           <main className="max-w-4xl mx-auto px-4 py-8">
             {activeView === 'feed' ? (
               <>
-{/* --- Topic Selector (dropdown) --- */}
-<div className="mb-6">
-  <label className="block text-sm font-semibold text-gray-700 mb-2">
-    Filter by topic:
-  </label>
-
-  <div className="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg">
-    <select
-      value={selectedTopic}
-      onChange={(e) => {
-        const value = e.target.value;
-        setSelectedTopic(value);
-        fetchArticles(value, true);
-      }}
-      className="bg-transparent focus:outline-none text-sm text-gray-800"
-    >
-      {TOPICS.map((t) => (
-        <option key={t.key} value={t.key}>
-          {t.label}
-        </option>
-      ))}
-    </select>
-  </div>
-</div>
-
-                {/* --- Existing Filters --- */}
-                {/*
                 <div className="mb-6">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Filter by Source:</h3>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {['all', 'Wikipedia', 'Stanford Encyclopedia', 'Britannica', 'Smithsonian'].map(src => (
-                      <button key={src} onClick={() => handleSourceChange(src)}
-                              className={`px-3 py-1 rounded-full text-sm ${
-                                sourceFilter === src
-                                  ? 'bg-indigo-600 text-white'
-                                  : 'bg-white text-gray-700 hover:bg-gray-100'
-                              }`}>
-                        {src === 'all' ? 'All Sources' : src}
-                      </button>
-                    ))}
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Filter by topic:
+                  </label>
+
+                  <div className="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg">
+                    <select
+                      value={selectedTopic}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setSelectedTopic(value);
+                        fetchArticles(value, true);
+                      }}
+                      className="bg-transparent focus:outline-none text-sm text-gray-800"
+                    >
+                      {TOPICS.map((t) => (
+                        <option key={t.key} value={t.key}>
+                          {t.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Filter by Period:</h3>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Filter size={18} className="text-gray-500" />
-                    {['all', 'ancient', 'medieval', 'early-modern', 'modern', 'technology'].map(cat => (
-                      <button key={cat} onClick={() => handleCategoryChange(cat)}
-                              className={`px-3 py-1 rounded-full text-sm ${
-                                category === cat
-                                  ? 'bg-blue-600 text-white'
-                                  : 'bg-white text-gray-700 hover:bg-gray-100'
-                              }`}>
-                        {cat === 'all' ? 'All Periods' : cat.replace('-', ' ')}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-*/}
-                {/* --- Article Rendering --- */}
                 {loading ? (
                   <div className="flex flex-col items-center justify-center py-20">
                     <RefreshCw className="animate-spin text-blue-600 mb-4" size={40} />
@@ -396,8 +352,10 @@ const ArticleCard = ({ article }) => {
                 ) : error ? (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
                     <p className="text-red-700 mb-4">{error}</p>
-                    <button onClick={() => fetchArticles(selectedTopic, true)}
-                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                    <button
+                      onClick={() => fetchArticles(selectedTopic, true)}
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    >
                       Try Again
                     </button>
                   </div>
@@ -406,24 +364,19 @@ const ArticleCard = ({ article }) => {
                     <p className="text-yellow-700">No articles match your filters. Try a different topic.</p>
                   </div>
                 ) : (
-                  const wiki = displayedArticles.filter(a => a.source === 'Wikipedia');
-const others = displayedArticles.filter(a => a.source !== 'Wikipedia');
+                  <>
+                    {wiki.map(a => <ArticleCard key={a.id} article={a} />)}
 
-// then in render:
-<>
-  {wiki.map(a => <ArticleCard key={a.id} article={a} />)}
+                    {sonnetError ? (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 text-sm text-yellow-800">
+                        {sonnetError}
+                      </div>
+                    ) : (
+                      <SonnetCard sonnet={sonnet} />
+                    )}
 
-  {/* Sonnet block goes here */}
-  {sonnetError ? (
-    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 text-sm text-yellow-800">
-      {sonnetError}
-    </div>
-  ) : (
-    <SonnetCard sonnet={sonnet} />
-  )}
-
-  {others.map(a => <ArticleCard key={a.id} article={a} />)}
-</>
+                    {others.map(a => <ArticleCard key={a.id} article={a} />)}
+                  </>
                 )}
               </>
             ) : (
@@ -436,6 +389,7 @@ const others = displayedArticles.filter(a => a.source !== 'Wikipedia');
                       : `You have ${savedArticles.length} saved article${savedArticles.length !== 1 ? 's' : ''}`}
                   </p>
                 </div>
+
                 {savedArticles.length > 0 ? (
                   savedArticles.map(article => <ArticleCard key={article.id} article={article} />)
                 ) : (
